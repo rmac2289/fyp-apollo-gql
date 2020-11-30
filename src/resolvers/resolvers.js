@@ -29,6 +29,14 @@ const resolvers = {
         return error.message;
       }
     },
+    deleteUser: async (_, { _id }) => {
+      try {
+        await Comment.remove(_id);
+        return true;
+      } catch (error) {
+        return console.error(error);
+      }
+    },
   },
 };
 
