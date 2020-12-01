@@ -31,10 +31,12 @@ const resolvers = {
     },
     deleteUser: async (_, { _id }) => {
       try {
-        await Comment.remove(_id);
+        await User.findByIdAndDelete(_id);
+        console.log("successful deletion");
         return true;
       } catch (error) {
-        return console.error(error);
+        console.log(`No User with _id: ${_id}`);
+        return false;
       }
     },
   },

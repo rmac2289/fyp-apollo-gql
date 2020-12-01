@@ -46,7 +46,7 @@ const typeDefs = gql`
       date: String!
       user: UserInput
     ): Comment
-    deleteUser: Boolean
+    deleteUser(_id: ID!): String
   }
 `;
 
