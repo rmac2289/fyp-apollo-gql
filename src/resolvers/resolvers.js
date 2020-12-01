@@ -1,18 +1,22 @@
 const [comments, users] = require("../../fakeData");
-const { User, Comment } = require("../../models");
+const { User, Comment, Suggestion } = require("../../models");
 
 const resolvers = {
   Query: {
-    getCommentById: async (_, { _id }) => {
-      return await Comment.findById(_id).exec();
-    },
-    getComments: async (_) => {
-      return await Comment.find({}).exec();
-    },
+    getCommentById: async (_, { _id }) => await Comment.findById(_id).exec(),
+    getComments: async () => await Comment.find({}).exec(),
     getUsers: async () => await User.find({}).exec(),
-    getSuggestions: () => console.log("suggestion"),
+    getSuggestions: async () => await Suggestion.find({}).exec(),
   },
   Mutation: {
+    addSuggestion: async (_, suggestion) => {
+      try {
+        let response = await Suggestion.create(suggestion);
+        return response;
+      } catch (error) {
+        return error.message;
+      }
+    },
     addUser: async (_, user) => {
       try {
         let response = await User.create(user);
@@ -47,6 +51,19 @@ const resolvers = {
         const commentExists = await Comment.exists({ _id: _id });
         if (commentExists) {
           await Comment.findByIdAndDelete(_id);
+          return `Comment with id: ${_id} successfully deleted`;
+        } else {
+          return `No comment found with id: ${_id}`;
+        }
+      } catch (error) {
+        return error.message;
+      }
+    },
+    deleteSuggestion: async (_, { _id }) => {
+      try {
+        const suggestionExists = await Suggestion.exists({ _id: _id });
+        if (suggestionExists) {
+          await Suggestion.findByIdAndDelete(_id);
           return `Comment with id: ${_id} successfully deleted`;
         } else {
           return `No comment found with id: ${_id}`;

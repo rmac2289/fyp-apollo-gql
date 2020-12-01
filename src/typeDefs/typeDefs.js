@@ -8,7 +8,9 @@ const typeDefs = gql`
   type Suggestion {
     _id: ID!
     park_name: String!
+    location: String!
     description: String
+    user: User
   }
 
   type Comment {
@@ -38,6 +40,12 @@ const typeDefs = gql`
     getCommentById(_id: ID!): Comment
   }
   type Mutation {
+    addSuggestion(
+      park_name: String!
+      location: String!
+      description: String!
+      user: UserInput
+    ): Suggestion
     addUser(user_name: String!, password: String!, email: String!): User
     addComment(
       comment: String!
@@ -48,6 +56,7 @@ const typeDefs = gql`
     ): Comment
     deleteUser(_id: ID!): String
     deleteComment(_id: ID!): String
+    deleteSuggestion(_id: ID!): String
   }
 `;
 
