@@ -13,17 +13,17 @@ const resolvers = {
     getSuggestions: () => console.log("suggestion"),
   },
   Mutation: {
-    addUser: async (_, args) => {
+    addUser: async (_, user) => {
       try {
-        let response = await User.create(args);
+        let response = await User.create(user);
         return response;
       } catch (error) {
         return error.message;
       }
     },
-    addComment: async (_, args) => {
+    addComment: async (_, comment) => {
       try {
-        let response = await Comment.create(args);
+        let response = await Comment.create(comment);
         return response;
       } catch (error) {
         return error.message;
@@ -31,12 +31,28 @@ const resolvers = {
     },
     deleteUser: async (_, { _id }) => {
       try {
-        await User.findByIdAndDelete(_id);
-        console.log("successful deletion");
-        return true;
+        const userExists = await User.exists({ _id: _id });
+        if (userExists) {
+          await User.findByIdAndDelete(_id);
+          return `User with id: ${_id} successfully deleted`;
+        } else {
+          return `No user found with id: ${_id}.`;
+        }
       } catch (error) {
-        console.log(`No User with _id: ${_id}`);
-        return false;
+        return error.message;
+      }
+    },
+    deleteComment: async (_, { _id }) => {
+      try {
+        const commentExists = await Comment.exists({ _id: _id });
+        if (commentExists) {
+          await Comment.findByIdAndDelete(_id);
+          return `Comment with id: ${_id} successfully deleted`;
+        } else {
+          return `No comment found with id: ${_id}`;
+        }
+      } catch (error) {
+        return error.message;
       }
     },
   },

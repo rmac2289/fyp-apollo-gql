@@ -47,6 +47,7 @@ const typeDefs = gql`
       user: UserInput
     ): Comment
     deleteUser(_id: ID!): String
+    deleteComment(_id: ID!): String
   }
 `;
 
