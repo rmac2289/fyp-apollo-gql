@@ -1,14 +1,17 @@
-const { ApolloServer, gql } = require("apollo-server-express");
+const { ApolloServer } = require("apollo-server-express");
 const typeDefs = require("./src/typeDefs/typeDefs");
 const resolvers = require("./src/resolvers/resolvers");
 require("dotenv").config();
 require("./config");
-const { User } = require("./models");
 const express = require("express");
 
 const app = express();
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: (req) => req.req,
+});
 
 server.applyMiddleware({ app });
 

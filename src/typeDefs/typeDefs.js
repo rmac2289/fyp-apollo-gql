@@ -1,8 +1,32 @@
 const { gql } = require("apollo-server");
 
 const typeDefs = gql`
+  scalar Date
+  type EntranceFee {
+    cost: String
+    title: String
+  }
+
+  type Image {
+    altText: String!
+    title: String
+    url: String!
+  }
+
   type Park {
     _id: ID!
+    fullName: String!
+    state: String
+    map: String!
+    latLng: [String]
+    activities: [String]
+    entranceFees: [EntranceFee]
+    url: String!
+    weatherInfo: String
+    hours: String
+    description: String
+    images: [Image]
+    address: String
   }
 
   type Suggestion {
@@ -18,7 +42,12 @@ const typeDefs = gql`
     comment: String!
     subject: String!
     park_name: String!
-    date: String!
+    date: Date!
+    user: User
+  }
+
+  type AuthPayload {
+    token: String
     user: User
   }
 
@@ -38,7 +67,10 @@ const typeDefs = gql`
     getUsers: [User]
     getSuggestions: [Suggestion]
     getCommentById(_id: ID!): Comment
+    getPark: [Park]
+    getParkByName(fullName: String!): Park
   }
+
   type Mutation {
     addSuggestion(
       park_name: String!
@@ -46,17 +78,18 @@ const typeDefs = gql`
       description: String!
       user: UserInput
     ): Suggestion
-    addUser(user_name: String!, password: String!, email: String!): User
     addComment(
       comment: String!
       subject: String!
       park_name: String!
-      date: String!
+      date: Date!
       user: UserInput
     ): Comment
     deleteUser(_id: ID!): String
     deleteComment(_id: ID!): String
     deleteSuggestion(_id: ID!): String
+    login(user_name: String!, password: String!): AuthPayload
+    addUser(email: String!, user_name: String!, password: String!): AuthPayload
   }
 `;
 
