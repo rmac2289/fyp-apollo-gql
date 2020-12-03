@@ -1,20 +1,33 @@
-const { User, Comment, Suggestion, Park } = require("../../models");
-const { GraphQLScalarType } = require("graphql");
-const { Kind } = require("graphql/language");
-const { validatePassword, validateEmail, APP_SECRET } = require("../../utils");
+const { gql } = require("apollo-server");
+const { validatePassword, validateEmail, APP_SECRET } = require("../utils");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { User, Comment, Suggestion } = require("../models");
+
+const typeDefs = gql`
+  type Mutation {
+    addSuggestion(
+      park_name: String!
+      location: String!
+      description: String!
+      user: UserInput
+    ): Suggestion
+    addComment(
+      comment: String!
+      subject: String!
+      park_name: String!
+      date: Date!
+      user: UserInput
+    ): Comment
+    deleteUser(_id: ID!): String
+    deleteComment(_id: ID!): String
+    deleteSuggestion(_id: ID!): String
+    login(user_name: String!, password: String!): AuthPayload
+    addUser(email: String!, user_name: String!, password: String!): AuthPayload
+  }
+`;
 
 const resolvers = {
-  Query: {
-    getCommentById: async (_, { _id }) => await Comment.findById(_id).exec(),
-    getComments: async () => await Comment.find({}).exec(),
-    getUsers: async () => await User.find({}).exec(),
-    getSuggestions: async () => await Suggestion.find({}).exec(),
-    getPark: async () => await Park.find({}).exec(),
-    getParkByName: async (_, parks) =>
-      await Park.findOne({ fullName: parks.fullName }).exec(),
-  },
   Mutation: {
     login: async (_, userInput) => {
       const userExists = await User.exists({ user_name: userInput.user_name });
@@ -22,7 +35,7 @@ const resolvers = {
         throw new Error(`User ${userInput.user_name} doesn't exist.`);
       if (userInput.password !== password)
         throw new Error(`Incorrect password.`);
-      const token = jwt.sign({ _id: userInput._id });
+      const token = jwt.sign({ _id: userInput._id }, APP_SECRET);
       return {
         token,
         user,
@@ -59,8 +72,7 @@ const resolvers = {
           ...userInput,
           password: passwordEncrypted,
         });
-        const token = jwt.sign({ _id: userInput._id }, APP_SECRET);
-        return { user, token };
+        return { user };
       } catch (error) {
         return error.message;
       }
@@ -116,24 +128,6 @@ const resolvers = {
       }
     },
   },
-  Date: new GraphQLScalarType({
-    name: "Date",
-    description: "Date custom scalar type",
-    parseValue(value) {
-      // value from client
-      return new Date(value);
-    },
-    serialize(value) {
-      // value sent to client
-      return value.getTime();
-    },
-    parseLiteral(ast) {
-      if (ast.kind === Kind.INT) {
-        return parseInt(ast.value, 10);
-      }
-      return null;
-    },
-  }),
 };
 
-module.exports = resolvers;
+module.exports = { typeDefs, resolvers };

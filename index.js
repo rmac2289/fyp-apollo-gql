@@ -1,15 +1,21 @@
 const { ApolloServer } = require("apollo-server-express");
-const typeDefs = require("./src/typeDefs/typeDefs");
-const resolvers = require("./src/resolvers/resolvers");
+const { merge } = require("lodash");
 require("dotenv").config();
 require("./config");
 const express = require("express");
+const { typeDefs: user } = require("./src/user");
+const { typeDefs: suggestion } = require("./src/suggestion");
+const { typeDefs: query, resolvers: queries } = require("./src/query");
+const { typeDefs: park } = require("./src/park");
+const { typeDefs: mutation, resolvers: mutations } = require("./src/mutation");
+const { typeDefs: date, resolvers: dates } = require("./src/date");
+const { typeDefs: comment } = require("./src/comment");
 
 const app = express();
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  typeDefs: [user, suggestion, query, park, mutation, date, comment],
+  resolvers: merge(queries, mutations, dates),
   context: (req) => req.req,
 });
 
